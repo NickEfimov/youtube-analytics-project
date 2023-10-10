@@ -1,7 +1,9 @@
 import pytest
+from ../src import *
 
+@pytest.fixture
+def channel():
+    return Channel('channel_id')
 
-class TestChannel:
-    @pytest.fixture
-    def channel(self):
-        return TestChannel
+def test_channel_init(channel):
+    assert channel.channel_id == 'channel_id'
