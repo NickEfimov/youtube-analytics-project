@@ -8,15 +8,20 @@ class Channel:
     api_key: str = os.getenv('youtubeAPIkey')
     youtube = build('youtube', 'v3', developerKey=api_key)
 
-    def __init__(self, channel_id, title=None, desc=None, url=None, subscribers=None, videos=None, video_count=None) -> None:
+
+    def __init__(self, channel_id :str) -> None:
         """Экземпляр инициализируется id канала. Дальше все данные будут подтягиваться по API."""
-        self.id = channel_id
-        self.title = title
-        self.desc = desc
-        self.url = url
-        self.subscribers = subscribers
-        self.videos = videos
-        self.video_count = video_count
+        self.channel_id = channel_id
+        channel = self.get_service().channels().list(id=self.channel_id, part='snippet,statistics').execute()
+        self.id = channel['items'][0]['id']
+        self.title = channel['items'][0]['snippet']['title']
+        self.description = channel['items'][0]['snippet']['description']
+        self.url = f'https://www.youtube.com/channel/{channel["items"][0]["id"]}'
+        self.subscriber_count = channel['items'][0]['statistics']['subscriberCount']
+        self.video_count = channel['items'][0]['statistics']['videoCount']
+        self.view_count = channel['items'][0]['statistics']['viewCount']
+
+
 
     def print_info(self) -> None:
         """Выводит в консоль информацию о канале."""
@@ -29,15 +34,15 @@ class Channel:
         youtube = build('youtube', 'v3', developerKey=api_key)
         return youtube
 
-    def to_json(self, argument):
+    def to_json(self, channel):
         """Сохраняет значения атрибутов экземпляра Channel в файл в формате JSON"""
         with open('filename', 'w') as f:
             json.dump({
                 'channel_id': self.id,
                 'channel_name': self.title,
-                'channel_desk': self.desc,
+                'channel_desс': self.description,
                 'link': self.url,
-                'subscribers': self.subscribers,
-                'videos': self.videos,
-                'total': self.video_count
+                'subscribers': self.subscriber_count,
+                'videos': self.video_count,
+                'total': self.view_count
             }, f)
